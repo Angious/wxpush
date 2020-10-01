@@ -1,42 +1,44 @@
-#-*- codeing = utf-8 -*-
-#@Author: Angious
-#@Time : 2020/5/6 21:05
-#@File : demo.py
-#@Software : PyCharm
+# -*- codeing = utf-8 -*-
+# @Author: Angious
+# @Time : 2020/5/6 21:05
+# @File : demo.py
+# @Software : PyCharm
 
 import requests
 import json
 
-wxpush_usr = '你的ID，英文的，你可以如图5.png画出来的那个'
 
-def wxpush(msg,usr):
-    base_url = 'https://qyapi.weixin.qq.com/cgi-bin/gettoken?'
-    req_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token='
-    corpid = '上面提到的你的企业ID，'
-    corpsecret = '上图的Secret'
-    
-    #获取access_token，每次的access_token都不一样，所以需要运行一次请求一次
-    def get_access_token(base_url, corpid, corpsecret):
-        urls = base_url + 'corpid=' + corpid + '8&corpsecret=' + corpsecret
+class WXPusher:
+    def __init__(self, usr, msg):
+        self.base_url = 'https://qyapi.weixin.qq.com/cgi-bin/gettoken?'
+        self.req_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token='
+        self.corpid = 'xxxxxxxxx'     # 上面提到的你的企业ID
+        self.corpsecret = '_61bxxxxxxxxxxxxxx'     # 上图的Secret
+        self.agentid = 123456          # 填写你的企业ID，不加引号，是个整型常数,就是上图的AgentId
+        self.usr = usr
+        self.msg = msg
+
+    def get_access_token(self):
+        urls = self.base_url + 'corpid=' + self.corpid + '&corpsecret=' + self.corpsecret
         resp = requests.get(urls).json()
         access_token = resp['access_token']
         return access_token
 
-    def send_message(msg, usr):
-        data = get_message(msg, usr)
-        req_urls = req_url + get_access_token(base_url, corpid, corpsecret)
+    def send_message(self):
+        data = self.get_message()
+        req_urls = self.req_url + self.get_access_token()
         res = requests.post(url=req_urls, data=data)
         print(res.text)
 
-    def get_message(msg, usr):
+    def get_message(self):
         data = {
-            "touser": usr,
+            "touser": self.usr,
             "toparty": "@all",
             "totag": "@all",
             "msgtype": "text",
-            "agentid": 填写你的企业ID，不加引号，是个整型常数,就是上图的AgentId
+            "agentid": self.agentid,
             "text": {
-                "content": msg
+                "content": self.msg
             },
             "safe": 0,
             "enable_id_trans": 0,
@@ -46,11 +48,9 @@ def wxpush(msg,usr):
         data = json.dumps(data)
         return data
 
-    msg = msg
-    usr = usr
-    send_message(msg, usr)
 
+if __name__ == '__main__':
+    test = WXPusher(usr='Chenxxx', msg="test")       # usr参数为推送用户名，msg为消息文本
+    test.send_message()
 
-#测试
-wxpush('test','@all')
 
